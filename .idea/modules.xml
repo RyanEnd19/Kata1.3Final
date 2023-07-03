@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/PPN3.1.3.iml" filepath="$PROJECT_DIR$/.idea/PPN3.1.3.iml" />
-      <module fileurl="file://$PROJECT_DIR$/PPN3.1.3-main/PP_3_1_2_Boot_Security-master/spring-boot_security-demo.iml" filepath="$PROJECT_DIR$/PPN3.1.3-main/PP_3_1_2_Boot_Security-master/spring-boot_security-demo.iml" />
-    </modules>
-  </component>
-</project>
