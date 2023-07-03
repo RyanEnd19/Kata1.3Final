@@ -2,9 +2,9 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <title>User info</title>
-    <style>
+  <meta charset="UTF-8">
+  <title>User info</title>
+  <style>
         * {
             font-size: 30px;
         }
@@ -15,16 +15,16 @@
 <h2>User info</h2>
 <br>
 <form th:method="POST" th:action="@{/logout}" th:object="${user}">
-    <p th:text="'Name: ' + ${user.getName()}"></p>
-    <p th:text="'Surname: ' + ${user.getSurname()}"></p>
-    <p th:text="'Age: ' + ${user.getAge()}"></p>
-    <p th:text="'Email: ' + ${user.getEmail()}"></p>
-    <input type="submit" value="logout"/>
-    <br/>
+  <p th:text="'Name: ' + ${user.getName()}"></p>
+  <p th:text="'Surname: ' + ${user.getSurname()}"></p>
+  <p th:text="'Age: ' + ${user.getAge()}"></p>
+  <p th:text="'Email: ' + ${user.getEmail()}"></p>
+  <input type="submit" value="logout"/>
+  <br/>
 </form>
 
 <form sec:authorize="hasRole('ROLE_ADMIN')" th:method="GET" th:action="@{/admin/}">
-    <input sec:authorize="hasRole('ROLE_ADMIN')" type="submit" value="Back to users list"/>
+  <input sec:authorize="hasRole('ROLE_ADMIN')" type="submit" value="Back to users list"/>
 </form>
 
 

@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.configs;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -7,57 +8,59 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import ru.kata.spring.boot_security.demo.service.UserService;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private static final String ADMIN = "ADMIN";
+    private static final String USER = "USER";
     private final SuccessUserHandler successUserHandler;
-    private final UserDetailsService userDetailsService;
+    private final UserService userService;
 
 
-    public WebSecurityConfig(SuccessUserHandler successUserHandler, UserDetailsService userDetailsService) {
+    @Autowired
+    public WebSecurityConfig(SuccessUserHandler successUserHandler, UserService userService) {
         this.successUserHandler = successUserHandler;
-        this.userDetailsService = userDetailsService;
+        this.userService = userService;
+
     }
 
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/index").permitAll()
-                        .requestMatchers("/admin/").hasRole("ADMIN") // if you have an admin controller
-                        .requestMatchers("/user/**").hasRole("USER") // added ** to the endpoint
-                        .anyRequest().authenticated()
-                )
-                .formLogin((form) -> form
-                        .successHandler(successUserHandler)
-                        .permitAll()
-                )
-                .logout((logout) -> logout.logoutSuccessUrl("/")
-                        .permitAll());
-
-        return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder
-            , UserDetailsService userDetailService) throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(userDetailService)
-                .passwordEncoder(passwordEncoder)
+                .csrf()
+                .disable()
+                .authorizeRequests()
+                .antMatchers("/", "/login").permitAll()
+                .antMatchers("/api/admin/**").hasRole(ADMIN)
+                .antMatchers("/api/user/**").hasAnyRole(ADMIN, USER)
+                .anyRequest().authenticated()
                 .and()
-                .build();
+                .formLogin()
+                .successHandler(successUserHandler)
+                .loginPage("/login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .permitAll()
+                .and()
+                .logout()
+                .logoutSuccessUrl("/");
+    }
+
+    @Override
+    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+        authenticationManagerBuilder.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
 
